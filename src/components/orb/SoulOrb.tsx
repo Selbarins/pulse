@@ -185,6 +185,7 @@ const makeSharedUniforms = (): Uniforms => ({
   uDebt: { value: 0 },
   uGlitch: { value: 0 },
   uScale: { value: 1000 },
+  uSize: { value: 0.058 },
 });
 
 /* -------------------------------------------------------------------------- */
@@ -402,10 +403,6 @@ function buildCore() {
 
 function CorePoints({ uniforms }: { uniforms: Uniforms }) {
   const { positions, colors, rand } = useMemo(buildCore, []);
-  const layerUniforms = useMemo(
-    () => ({ ...uniforms, uSize: { value: 0.058 } }),
-    [uniforms]
-  );
 
   return (
     <points frustumCulled={false}>
@@ -415,7 +412,7 @@ function CorePoints({ uniforms }: { uniforms: Uniforms }) {
         <bufferAttribute attach="attributes-aRand" args={[rand, 4]} />
       </bufferGeometry>
       <shaderMaterial
-        uniforms={layerUniforms}
+        uniforms={uniforms}
         vertexShader={CORE_VERT}
         fragmentShader={CORE_FRAG}
         transparent
