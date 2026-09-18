@@ -258,7 +258,7 @@ const CORE_VERT = /* glsl */ `
         isDiscipline * RED;
 
     // mix ivory → attribute color by group level (always a mix, never pure red takeover)
-    vec3 col = mix(aColor, attrCol, clamp(groupLevel * 1.15, 0.0, 1.0));
+   vec3 col = mix(aColor, attrCol, clamp(groupLevel, 0.0, 1.0));
 
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
     float bright = 0.35 + uEnergy * 0.35;
@@ -323,7 +323,8 @@ const CORE_VERT = /* glsl */ `
 
     // ---- opacity: base + group level (weak attributes fade out) ------------
     float energyDrop = smoothstep(0.35, 0.0, uEnergy);
-    float alpha = (0.22 + uEnergy * 0.28) + groupLevel * (0.45 + uEnergy * 0.25);
+    // base visibility always present; level mainly drives color intensity
+    float alpha = 0.35 + uEnergy * 0.35 + groupLevel * 0.2;
     alpha *= 1.0 - energyDrop * 0.5 * step(aRand.y, 0.55);
 
     // instability: dropout + jitter + glitch
