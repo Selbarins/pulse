@@ -125,6 +125,69 @@ Meta-attribute. Derived from consistency across all other stats.
 
 ---
 
+## Soul Orb (Visual Core)
+
+The Soul Orb is the main visual focus of the app. It is a living, futuristic energy sphere (Matrix-inspired particle system) that represents the player's state. No text or numbers appear on the orb — pure visual language.
+
+**Technical approach:** React Three Fiber + Three.js (particle-based orb, soft white-gold palette).
+
+**Placement:** Center of the home/dashboard. Primary visual element on mobile.
+
+**Dominant healthy color:** Soft white-gold (elegant, not neon).
+
+### How states blend
+
+The orb does **not** switch between single modes. Attributes and conditions act as layers that blend simultaneously:
+
+| Layer | Visual influence |
+|---|---|
+| Wealth | Warm gold filaments + richer metallic reflections |
+| Momentum | Faster internal flow + energy streams |
+| Vitality | Soft organic pulses + life-energy tint |
+| Focus | Cleaner geometric / precise patterns |
+| Discipline | Tighter outer structure, crystalline stability |
+| Overall Level + Streak | Brightness, density, complexity |
+
+Negative conditions (debt, inactivity, poor sleep) introduce darkness, glitches, and instability that partially override positive layers.
+
+### Full Orb State Table
+
+| State | Trigger | Visual behavior |
+|---|---|---|
+| **Dormant** | Long inactivity / very low activity | Dim, almost still, low opacity, sparse slow particles |
+| **Weak** | Low attributes + broken streak | Unstable surface, digital glitches, flickering, weak glow |
+| **Stable** | Average performance | Steady soft white-gold core, calm digital flow, medium glow |
+| **Rising** | Recent good days / improving trends | Core brightens, particles accelerate, outer ring begins forming |
+| **Strong** | High attributes + solid streak | Dense white-gold energy, strong outer ring, smooth powerful flow |
+| **Peak** | High level + high streak + healthy attributes | Maximum brightness, complex internal structure, elegant rotating outer rings, soft lens flare |
+| **Overclocked** | Extreme short-term performance (many quests + training + deep work in one day) | Temporary intense brightness + faster particle speed (that day only) |
+| **Debt / Corrupted** | Active debt state from failed Weekly Boss | Dark cracks, colder gold, increased digital noise, slight red edge tint |
+| **Recovering** | Coming out of debt or rebuilding a streak | Cracks slowly heal, brightness returns gradually, particles re-order |
+| **Focused** | High Focus attribute | Geometric, precise patterns dominate the surface |
+| **Vital** | High Vitality | Soft organic pulses + green life energy mixed into white-gold |
+| **Wealthy** | High Wealth | Warm gold filaments and richer metallic reflections |
+| **Disciplined** | High Discipline + long streak | Extremely clean outer structure, almost crystalline, minimal noise |
+| **Momentum Surge** | High Momentum | Faster internal rotation and flowing energy streams |
+| **Season Peak** | Near end of a successful season | Special elegant outer halo |
+| **Resting / Night** | Night hours + no activity (temporary) | Soft, slow, calm, lower brightness, gentle breathing animation |
+| **Post-Sleep (Good)** | High sleep quality logged | Orb starts the next day clearer and more recovered |
+| **Post-Sleep (Poor)** | Low sleep quality logged | Orb starts the day slightly unstable or dimmer |
+
+**Design rules**
+- Never shows text or numbers
+- Transitions between blended states are smooth (1–2 seconds)
+- Mobile performance is a priority
+- White-gold remains the primary healthy color
+- Negative states use instability and darkness rather than pure red
+
+**Current implementation status**
+- First particle-based Soul Orb exists at `src/components/orb/SoulOrb.tsx`
+- Soft white-gold palette + slow rotation
+- Displayed on the home page
+- State system (attribute-driven blending) not yet wired to live data
+
+---
+
 ## Game Systems
 
 ### 1. Daily Quests
@@ -450,6 +513,9 @@ Miss → Season 1 extends by 30 days with adjusted targets.
 │  Level 12 · XP: 4,820 / 6,000                       │
 ├─────────────────────────────────────────────────────┤
 │  TODAY'S EDGE: Fasted training → +40% Vitality XP   │
+├─────────────────────────────────────────────────────┤
+│                    [ SOUL ORB ]                     │
+│              (main visual focus)                    │
 ├────────────┬────────────┬────────────┬──────────────┤
 │  💰 Wealth │ ❤️ Vitality│ 🎯 Focus  │ 🔒 Discipline│
 │  Lv 8      │  Lv 6      │  Lv 5     │  Lv 7        │
@@ -494,6 +560,7 @@ Miss → Season 1 extends by 30 days with adjusted targets.
 |---|---|---|
 | Frontend | Next.js (React) | Fast, mobile-first, PWA-ready |
 | Styling | Tailwind CSS | Rapid iteration, consistent design |
+| 3D / Orb | Three.js + React Three Fiber + Drei | Soul Orb particle system |
 | Backend | Supabase | Free tier, Postgres, auth, real-time |
 | Hosting | Vercel | Free tier, zero-config Next.js deploy |
 | Auth | Supabase Auth | Simple, single user, no overhead |
@@ -516,6 +583,7 @@ Miss → Season 1 extends by 30 days with adjusted targets.
 8. **Seasons over infinite grind** — 90-day arcs with reflection and reset
 9. **Everything is configurable, nothing is hardcoded** — goals adapt to life, not the other way around
 10. **The app is a mirror, not a judge** — config changes signal self-awareness, not failure
+11. **Soul Orb is the emotional core** — pure visual reflection of the player's state, no text on the orb
 
 ---
 
@@ -594,13 +662,15 @@ Realistically (80% completion) — about 30 days. This is intentional.
 ## Build Order (Recommended)
 
 ### Phase 1 — Foundation (Week 1–2)
-- [ ] Supabase project + schema (including config + pivot tables)
-- [ ] Next.js app scaffold + Vercel deploy
+- [x] Supabase project + schema (including config + pivot tables)
+- [x] Next.js app scaffold + Vercel deploy
 - [ ] Auth (single user login)
-- [ ] **Config screen** (all editable targets, quest toggles, season settings)
+- [x] Soul Orb v1 (particle system, white-gold)
+- [ ] Wire orb states to live attribute / streak / debt data
+- [ ] Config screen (all editable targets, quest toggles, season settings)
 - [ ] Daily log form (glycemia, weight, sleep, energy)
 - [ ] Quest checklist (today's quests, XP on complete)
-- [ ] Basic dashboard (quests + health stats)
+- [ ] Basic dashboard (quests + health stats + orb)
 
 ### Phase 2 — Game Layer (Week 3–4)
 - [ ] XP system + attribute levels
@@ -629,6 +699,24 @@ Realistically (80% completion) — about 30 days. This is intentional.
 - [ ] Mobile UX pass
 - [ ] Charts and trend graphs
 - [ ] Season 2 unlock flow
+- [ ] Advanced orb shaders / state transitions
+
+---
+
+## Current Build Status (Sep 2026)
+
+| Area | Status |
+|---|---|
+| Repo + modular skeleton | Done |
+| Supabase schema (SQL run) | Done by user |
+| Vercel + env vars | Connected |
+| Codespace local dev | Working |
+| Soul Orb v1 (particle white-gold) | Done — `src/components/orb/SoulOrb.tsx` |
+| Orb state system (live data) | Not started |
+| Auth | Not started |
+| Daily log form | Not started |
+| Quest checklist | Not started |
+| XP / streaks / bosses | Logic skeletons only |
 
 ---
 
@@ -636,6 +724,7 @@ Realistically (80% completion) — about 30 days. This is intentional.
 
 You open the app and immediately see:
 
+- The Soul Orb reflecting your current state
 - Current character level and all five attribute scores
 - Today's quests and remaining Action Points
 - Money status (surplus, locked vs unlocked capital, net-worth trend)
@@ -665,4 +754,4 @@ That's the only metric that matters.
 
 ---
 
-*This document is the locked project vision. Names, formulas, quest examples, reward tables and priority order can be refined. The core fantasy, systems and ROI focus are stable.*
+*This document is the locked project vision. Names, formulas, quest examples, reward tables and priority order can be refined. The core fantasy, systems, ROI focus and Soul Orb design are stable.*
