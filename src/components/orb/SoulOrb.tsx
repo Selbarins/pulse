@@ -429,24 +429,6 @@ function CorePoints({ uniforms }: { uniforms: Uniforms }) {
 /*  Scene                                                                     */
 /* -------------------------------------------------------------------------- */
 
-function OrbScene({ state }: { state: OrbVisualState }) {
-  const orbRef = useRef<THREE.Group>(null);
-  const uniforms = useMemo(makeSharedUniforms, []);
-  const pulse = useRef(0);
-  const glitch = useRef(0);
-
-  const cur = useRef({
-    energy: state.energy,
-    speed: state.speed,
-    stability: state.stability,
-    vitality: state.vitality,
-    wealth: state.wealth,
-    focus: state.focus,
-    momentum: state.momentum,
-    discipline: state.discipline,
-    debt: state.debt ? 1 : 0,
-  });
-
   function OrbScene({ state }: { state: OrbVisualState }) {
   const orbRef = useRef<THREE.Group>(null);
   const uniforms = useMemo(makeSharedUniforms, []);
