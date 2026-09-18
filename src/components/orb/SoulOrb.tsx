@@ -405,6 +405,25 @@ function buildCore() {
 
 function CorePoints({ uniforms }: { uniforms: Uniforms }) {
   const { positions, colors, rand } = useMemo(buildCore, []);
+  const matRef = useRef<THREE.ShaderMaterial>(null);
+
+  useFrame(() => {
+    const mat = matRef.current;
+    if (!mat) return;
+    const u = mat.uniforms;
+    u.uTime.value = uniforms.uTime.value;
+    u.uSpin.value = uniforms.uSpin.value;
+    u.uEnergy.value = uniforms.uEnergy.value;
+    u.uStability.value = uniforms.uStability.value;
+    u.uVitality.value = uniforms.uVitality.value;
+    u.uWealth.value = uniforms.uWealth.value;
+    u.uFocus.value = uniforms.uFocus.value;
+    u.uMomentum.value = uniforms.uMomentum.value;
+    u.uDiscipline.value = uniforms.uDiscipline.value;
+    u.uDebt.value = uniforms.uDebt.value;
+    u.uGlitch.value = uniforms.uGlitch.value;
+    u.uScale.value = uniforms.uScale.value;
+  });
 
   return (
     <points frustumCulled={false}>
@@ -414,6 +433,7 @@ function CorePoints({ uniforms }: { uniforms: Uniforms }) {
         <bufferAttribute attach="attributes-aRand" args={[rand, 4]} />
       </bufferGeometry>
       <shaderMaterial
+        ref={matRef}
         uniforms={uniforms}
         vertexShader={CORE_VERT}
         fragmentShader={CORE_FRAG}
