@@ -257,11 +257,13 @@ const CORE_VERT = /* glsl */ `
         isMomentum   * GREEN +
         isDiscipline * RED;
 
-    // mix ivory → attribute color by group level (always a mix, never pure red takeover)
-   vec3 col = mix(aColor, attrCol, clamp(groupLevel, 0.0, 1.0));
-
+    // Colors ALWAYS on (attribute color). Level only controls intensity.
+    // groupLevel 0 (lvl 1) → dim/soft, groupLevel 1 (lvl 20) → full vivid
+    float intensity = 0.2 + groupLevel * 0.8; // never fully off
+    vec3 col = attrCol;                        // always the attribute color
+    
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
-    float bright = 0.35 + uEnergy * 0.35;
+    float bright = (0.25 + uEnergy * 0.35) * intensity;
 
     // heartbeat (energy-driven)
     float heart = 0.5 + 0.5 * sin(uTime * (0.9 + uEnergy * 2.4));
