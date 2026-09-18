@@ -22,11 +22,11 @@ export type OrbVisualState = {
   energy: number; // 0–1  → brightness, density, heartbeat
   speed: number; // rotation / swirl multiplier
   stability: number; // 0–1  → flicker + glitch (low = chaos)
-  vitality: number; // 0–1  → pink life pulses
-  wealth: number; // 0–1  → warm gold
-  focus: number; // 0–1  → blue, ordered orbits
-  momentum: number; // 0–1  → green streamers / fast flow
-  discipline: number; // 0–1  → red, tight crystalline cloud
+  vitality: number; // 0–1  → pink life pulses (opacity)
+  wealth: number; // 0–1  → warm gold (opacity)
+  focus: number; // 0–1  → blue, ordered orbits (opacity)
+  momentum: number; // 0–1  → green streamers (opacity)
+  discipline: number; // 0–1  → red, tight crystalline (opacity)
   debt?: boolean; // cold dark + muted red edge, sagging
 };
 
@@ -217,7 +217,7 @@ const GLSL_COMMON = /* glsl */ `
 const CORE_VERT = /* glsl */ `
   uniform float uTime, uEnergy, uStability, uVitality, uWealth, uFocus, uMomentum, uDiscipline, uDebt, uGlitch, uScale, uSize;
   attribute vec3 aColor;
-  attribute vec4 aRand;   // x: role, y: speed/size, z: phase, w: hash
+  attribute vec4 aRand;   // x: fixed role slot, y: speed/size, z: phase, w: hash
   varying vec3 vColor;
   varying float vAlpha;
   ${GLSL_COMMON}
@@ -230,77 +230,82 @@ const CORE_VERT = /* glsl */ `
     // instability 0 (stable) → 1 (chaos)
     float fl = smoothstep(0.12, 0.88, 1.0 - uStability);
 
-    // ---- attribute color shares (normalized, debt mutes them) --------------
-    float mute = 1.0 - uDebt * 0.75;
-    float wW = uWealth     * mute;
-    float wV = uVitality   * mute;
-    float wF = uFocus      * mute;
-    float wM = uMomentum   * mute;
-    float wD = uDiscipline * mute;
-    float total = max(wW + wV + wF + wM + wD, 0.001);
+    // ---- FIXED equal slots (1/5 each attribute) ----------------------------
+    // aRand.x is [0,1) → 5 equal buckets, independent of levels
+    float slot = floor(aRand.x * 5.0); // 0 wealth, 1 vitality, 2 focus, 3 momentum, 4 discipline
+    float isWealth     = step(0.5, 1.0 - abs(slot - 0.0));
+    float isVitality   = step(0.5, 1.0 - abs(slot - 1.0));
+    float isFocus      = step(0.5, 1.0 - abs(slot - 2.0));
+    float isMomentum   = step(0.5, 1.0 - abs(slot - 3.0));
+    float isDiscipline = step(0.5, 1.0 - abs(slot - 4.0));
 
-    // pick a role from aRand.x across the weighted shares
-    float t = aRand.x * total;
-    float isWealth     = step(t, wW);
-    float isVitality   = step(wW, t) * step(t, wW + wV);
-    float isFocus      = step(wW + wV, t) * step(t, wW + wV + wF);
-    float isMomentum   = step(wW + wV + wF, t) * step(t, wW + wV + wF + wM);
-    float isDiscipline = step(wW + wV + wF + wM, t) * step(t, total);
+    // opacity of this group = attribute level (debt mutes all)
+    float mute = 1.0 - uDebt * 0.7;
+    float groupLevel =
+        isWealth     * uWealth * mute +
+        isVitality   * uVitality * mute +
+        isFocus      * uFocus * mute +
+        isMomentum   * uMomentum * mute +
+        isDiscipline * uDiscipline * mute;
 
-    // base stays soft ivory; attribute particles take over their share
-    vec3 col = aColor;
+    // base soft ivory when group is weak; attribute color when strong
+    vec3 attrCol =
+        isWealth     * GOLD +
+        isVitality   * PINK +
+        isFocus      * BLUE +
+        isMomentum   * GREEN +
+        isDiscipline * RED;
+
+    // mix ivory → attribute color by group level (always a mix, never pure red takeover)
+    vec3 col = mix(aColor, attrCol, clamp(groupLevel * 1.15, 0.0, 1.0));
+
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
-    float bright = 0.7 + uEnergy * 0.6;
+    float bright = 0.65 + uEnergy * 0.55;
 
     // heartbeat (energy-driven)
     float heart = 0.5 + 0.5 * sin(uTime * (0.9 + uEnergy * 2.4));
     bright *= 0.88 + heart * 0.28 * uEnergy;
 
-    // ---- Wealth: warm gold glints ------------------------------------------
+    // ---- per-attribute motion (only strong when that group is visible) -----
+    float motion = groupLevel;
+
+    // Wealth: gold glints
     if (isWealth > 0.5) {
       float sp = pow(max(0.0, sin(uTime * (1.5 + aRand.y * 3.8) + aRand.z * 42.0)), 5.5);
-      col = GOLD;
-      bright = (1.2 + sp * 1.7 + uWealth * 0.45) * (0.75 + uEnergy * 0.45);
-      size *= 1.45 + sp * 1.9;
+      bright += sp * 1.4 * motion;
+      size *= 1.0 + (0.45 + sp * 1.6) * motion;
     }
-    // ---- Vitality: pink life pulse travelling upward -----------------------
+    // Vitality: pink life pulse travelling upward
     else if (isVitality > 0.5) {
       float wave = 0.5 + 0.5 * sin(uTime * (1.6 + uEnergy) - pos.y * 3.4 + aRand.z * 1.4);
-      col = PINK;
-      bright = (1.15 + wave * 1.35 + uVitality * 0.5) * (0.75 + uEnergy * 0.45);
-      size *= 1.55 + wave * 1.35;
-      pos += dir * wave * 0.055 * uVitality;
+      bright += wave * 1.1 * motion;
+      size *= 1.0 + (0.5 + wave * 1.1) * motion;
+      pos += dir * wave * 0.055 * motion;
     }
-    // ---- Focus: cool blue, tighter ordered motion --------------------------
+    // Focus: cool blue, ordered pull toward sphere
     else if (isFocus > 0.5) {
       float lattice = 0.5 + 0.5 * sin(uTime * 1.1 + pos.x * 4.0 + pos.y * 3.2 + aRand.z);
-      col = BLUE;
-      bright = (1.1 + lattice * 0.9 + uFocus * 0.4) * (0.8 + uEnergy * 0.4);
-      size *= 1.25 + lattice * 0.6;
-      // slight pull toward a cleaner sphere shell
-      pos = mix(pos, dir * r, uFocus * 0.18);
+      bright += lattice * 0.7 * motion;
+      size *= 1.0 + (0.25 + lattice * 0.5) * motion;
+      pos = mix(pos, dir * r, 0.18 * motion);
     }
-    // ---- Momentum: green streamers, faster tangential flow -----------------
+    // Momentum: green streamers, tangential flow
     else if (isMomentum > 0.5) {
       float stream = 0.5 + 0.5 * sin(uTime * (2.2 + uMomentum) + aRand.z * 8.0 + pos.y * 2.0);
-      col = GREEN;
-      bright = (1.15 + stream * 1.2 + uMomentum * 0.45) * (0.75 + uEnergy * 0.45);
-      size *= 1.4 + stream * 1.1;
-      // tangential swirl boost
+      bright += stream * 1.0 * motion;
+      size *= 1.0 + (0.35 + stream * 0.9) * motion;
       vec3 tang = normalize(cross(dir, vec3(0.0, 1.0, 0.0) + dir * 0.01));
-      pos += tang * stream * 0.07 * uMomentum;
+      pos += tang * stream * 0.07 * motion;
     }
-    // ---- Discipline: red crystalline, tighter cloud ------------------------
+    // Discipline: red crystalline, pull inward
     else if (isDiscipline > 0.5) {
       float crystal = 0.5 + 0.5 * sin(uTime * 0.9 + aRand.z * 12.0);
-      col = RED;
-      bright = (1.1 + crystal * 0.7 + uDiscipline * 0.35) * (0.8 + uEnergy * 0.4);
-      size *= 1.2 + crystal * 0.5;
-      // pull inward → denser sphere
-      pos *= 1.0 - uDiscipline * 0.12;
+      bright += crystal * 0.55 * motion;
+      size *= 1.0 + (0.2 + crystal * 0.4) * motion;
+      pos *= 1.0 - 0.12 * motion;
     }
 
-    // ---- Tightness from Discipline (global) + looseness from low stability -
+    // ---- global tightness: Discipline tightens, low stability / debt loosens
     float tight = 1.0 - uDiscipline * 0.14 + fl * 0.16 + uDebt * 0.1;
     pos *= tight;
 
@@ -315,10 +320,10 @@ const CORE_VERT = /* glsl */ `
     pos.y -= uDebt * 0.14 * (0.25 + aRand.y);
     pos *= 1.0 - uDebt * 0.07;
 
-    // low energy → dimmer + sparser (drop more particles)
+    // ---- opacity: base + group level (weak attributes fade out) ------------
     float energyDrop = smoothstep(0.35, 0.0, uEnergy);
-    float alpha = 0.52 + uEnergy * 0.4;
-    alpha *= 1.0 - energyDrop * 0.55 * step(aRand.y, 0.55);
+    float alpha = (0.22 + uEnergy * 0.28) + groupLevel * (0.45 + uEnergy * 0.25);
+    alpha *= 1.0 - energyDrop * 0.5 * step(aRand.y, 0.55);
 
     // instability: dropout + jitter + glitch
     float tick = floor(uTime * (6.0 + aRand.y * 14.0));
@@ -480,7 +485,6 @@ function OrbScene({ state }: { state: OrbVisualState }) {
       (rs.size.height * rs.gl.getPixelRatio()) /
       (2 * Math.tan(THREE.MathUtils.degToRad(FOV) / 2));
 
-    // breathing + rotation (momentum speeds swirl, discipline steadies scale)
     pulse.current += dt * (0.85 + c.energy * 1.7 + c.momentum * 0.4);
     const g = orbRef.current;
     if (g) {
