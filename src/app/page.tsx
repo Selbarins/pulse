@@ -1,9 +1,8 @@
 import SoulOrb from "@/components/orb/SoulOrb";
+import { AttributeBar } from "@/components/dashboard/AttributeBar";
 import { orbStateFromStats } from "@/lib/orb/fromStats";
 import type { Attribute } from "@/types/attributes";
 
-// Temporary mock until Supabase attributes table is live.
-// Swap this for a real fetch later — the orb itself stays unchanged.
 const MOCK_ATTRIBUTES: Attribute[] = [
   { name: "wealth", level: 3, currentXp: 420, xpToNext: 1000, multiplier: 1.1 },
   { name: "vitality", level: 2, currentXp: 180, xpToNext: 800, multiplier: 1.0 },
@@ -13,7 +12,7 @@ const MOCK_ATTRIBUTES: Attribute[] = [
 ];
 
 export default function Home() {
-  const state = orbStateFromStats(MOCK_ATTRIBUTES, 9); // 9-day streak example
+  const state = orbStateFromStats(MOCK_ATTRIBUTES, 9);
 
   return (
     <main className="min-h-screen bg-[#0B0D10] flex flex-col items-center justify-center p-4">
@@ -25,9 +24,12 @@ export default function Home() {
         <SoulOrb state={state} />
       </div>
 
-      <p className="mt-6 text-slate-400 text-sm">
-        Soul Orb — live stats wired (mock data)
-      </p>
+      {/* Attributes */}
+      <div className="w-full max-w-md mt-8 space-y-4">
+        {MOCK_ATTRIBUTES.map((attr) => (
+          <AttributeBar key={attr.name} attribute={attr} />
+        ))}
+      </div>
     </main>
   );
 }
