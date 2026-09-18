@@ -257,13 +257,12 @@ const CORE_VERT = /* glsl */ `
         isMomentum   * GREEN +
         isDiscipline * RED;
 
-    // Colors ALWAYS on (attribute color). Level only controls intensity.
-    // groupLevel 0 (lvl 1) → dim/soft, groupLevel 1 (lvl 20) → full vivid
-    float intensity = 0.2 + groupLevel * 0.8; // never fully off
-    vec3 col = attrCol;                        // always the attribute color
+    // always attribute color; level only scales intensity
+    float intensity = 0.25 + groupLevel * 0.75; // lvl1 soft, lvl20 full
+    vec3 col = attrCol;                       // always the attribute color
     
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
-    float bright = (0.25 + uEnergy * 0.35) * intensity;
+    float bright = (0.4 + uEnergy * 0.4) * intensity;
 
     // heartbeat (energy-driven)
     float heart = 0.5 + 0.5 * sin(uTime * (0.9 + uEnergy * 2.4));
@@ -448,20 +447,43 @@ function OrbScene({ state }: { state: OrbVisualState }) {
     debt: state.debt ? 1 : 0,
   });
 
+  function OrbScene({ state }: { state: OrbVisualState }) {
+  const orbRef = useRef<THREE.Group>(null);
+  const uniforms = useMemo(makeSharedUniforms, []);
+  const pulse = useRef(0);
+  const glitch = useRef(0);
+
+  // always the latest props
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const cur = useRef({
+    energy: state.energy,
+    speed: state.speed,
+    stability: state.stability,
+    vitality: state.vitality,
+    wealth: state.wealth,
+    focus: state.focus,
+    momentum: state.momentum,
+    discipline: state.discipline,
+    debt: state.debt ? 1 : 0,
+  });
+
   useFrame((rs, delta) => {
     const dt = Math.min(delta, 0.05);
     const c = cur.current;
+    const s = stateRef.current; // ← latest, not stale
     const damp = THREE.MathUtils.damp;
 
-    c.energy = damp(c.energy, clamp01(state.energy), 2.5, dt);
-    c.speed = damp(c.speed, state.speed, 2.5, dt);
-    c.stability = damp(c.stability, clamp01(state.stability), 3, dt);
-    c.vitality = damp(c.vitality, clamp01(state.vitality), 2.5, dt);
-    c.wealth = damp(c.wealth, clamp01(state.wealth), 2.5, dt);
-    c.focus = damp(c.focus, clamp01(state.focus), 2.5, dt);
-    c.momentum = damp(c.momentum, clamp01(state.momentum), 2.5, dt);
-    c.discipline = damp(c.discipline, clamp01(state.discipline), 2.5, dt);
-    c.debt = damp(c.debt, state.debt ? 1 : 0, 2, dt);
+    c.energy = damp(c.energy, clamp01(s.energy), 2.5, dt);
+    c.speed = damp(c.speed, s.speed, 2.5, dt);
+    c.stability = damp(c.stability, clamp01(s.stability), 3, dt);
+    c.vitality = damp(c.vitality, clamp01(s.vitality), 2.5, dt);
+    c.wealth = damp(c.wealth, clamp01(s.wealth), 2.5, dt);
+    c.focus = damp(c.focus, clamp01(s.focus), 2.5, dt);
+    c.momentum = damp(c.momentum, clamp01(s.momentum), 2.5, dt);
+    c.discipline = damp(c.discipline, clamp01(s.discipline), 2.5, dt);
+    c.debt = damp(c.debt, s.debt ? 1 : 0, 2, dt);
 
     const instab = 1 - c.stability;
     if (Math.random() < instab * instab * 0.08 * dt * 60) {
