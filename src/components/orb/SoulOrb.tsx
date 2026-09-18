@@ -258,7 +258,7 @@ const CORE_VERT = /* glsl */ `
         isDiscipline * RED;
 
     // mix ivory → attribute color by group level (always a mix, never pure red takeover)
-    vec3 col = mix(attrCol, aColor, 0.15); // always attribute color, just slightly warmed;
+    vec3 col = mix(aColor, attrCol, clamp(groupLevel * 1.15, 0.0, 1.0));
 
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
     float bright = 0.35 + uEnergy * 0.35;
@@ -469,13 +469,13 @@ function OrbScene({ state }: { state: OrbVisualState }) {
     const u = uniforms;
     u.uTime.value += dt;
     u.uSpin.value += dt * c.speed;
-    u.uEnergy.value    = c.energy / 20;
+    u.uEnergy.value     = c.energy;
     u.uStability.value = c.stability;
-    u.uVitality.value  = c.vitality / 20;
-    u.uWealth.value    = c.wealth / 20;
-    u.uFocus.value     = c.focus / 20;
-    u.uMomentum.value  = c.momentum / 20;
-    u.uDiscipline.value = c.discipline / 20;
+    u.uVitality.value  = c.vitality;
+    u.uWealth.value    = c.wealth;
+    u.uFocus.value     = c.focus;
+    u.uMomentum.value  = c.momentum;
+    u.uDiscipline.value = c.discipline;
     u.uDebt.value = c.debt;
     u.uGlitch.value = glitch.current;
     u.uScale.value =
