@@ -1,4 +1,4 @@
-# Pulse — Project Memory v3
+# Pulses — Project Memory v3
 *Last updated: September 2026*
 
 ---
@@ -7,7 +7,7 @@
 
 | Field | Value |
 |---|---|
-| **App name** | Pulse |
+| **App name** | Pulses |
 | **Previous names** | Life RPG, Personal Performance Engine |
 | **Type** | Single-player life RPG / personal performance system |
 | **User** | One person. The builder. This is not a product — it is a personal weapon. |
@@ -320,7 +320,7 @@ This becomes the most valuable personal dataset the app generates.
 
 > **Core principle: Nothing is hardcoded. Everything is yours to change, anytime, without penalty.**
 
-Goals evolve. Life changes trajectory. The app must flex with the player, not trap him in yesterday's ambitions. The Configuration Layer is the system that makes Pulse permanently adaptive.
+Goals evolve. Life changes trajectory. The app must flex with the player, not trap him in yesterday's ambitions. The Configuration Layer is the system that makes Pulses permanently adaptive.
 
 ---
 
@@ -467,7 +467,7 @@ pivot_events (
 
 > **The app never tells the player their goal was wrong. It only tracks what the player decided, when they decided it, and what happened as a result.**
 
-Pulse is a mirror, not a judge. Config changes are a sign of self-awareness, not failure. The game rewards consistency within whatever trajectory the player has chosen — not adherence to an old plan.
+Pulses is a mirror, not a judge. Config changes are a sign of self-awareness, not failure. The game rewards consistency within whatever trajectory the player has chosen — not adherence to an old plan.
 
 ---
 
@@ -509,7 +509,7 @@ Miss → Season 1 extends by 30 days with adjusted targets.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  PULSE                           Day 47 · Season 1  │
+│  PULSES                           Day 47 · Season 1  │
 │  Level 12 · XP: 4,820 / 6,000                       │
 ├─────────────────────────────────────────────────────┤
 │  TODAY'S EDGE: Fasted training → +40% Vitality XP   │
