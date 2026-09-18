@@ -32,9 +32,11 @@ export function orbStateFromStats(
     ? 0.22
     : Math.min(1, 0.35 + (byName.discipline?.level ?? 0) * 0.08 + streakDays * 0.014);
 
-  // Per-attribute color drivers — stronger so identity shows by ~level 4–5
-  const attr = (name: string) =>
-    Math.min(1, ((byName[name]?.level ?? 0) * 0.18));
+  // level 1 → ~0 (neutral), level 20 → 1 (full vivid)
+  const attr = (name: string) => {
+    const level = byName[name]?.level ?? 1;
+    return Math.min(1, Math.max(0, (level - 1) / 19));
+  };
 
   return {
     energy: inDebt ? energy * 0.5 : energy,
