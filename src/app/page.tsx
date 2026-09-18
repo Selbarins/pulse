@@ -37,21 +37,26 @@ export default function Home() {
         Pulse — Orb Lab
       </h1>
 
-      {/* Orb */}
       <div className="w-full max-w-md">
-        <SoulOrb state={state} />
+        <SoulOrb state={state} showMood />
       </div>
 
-      {/* Live values */}
-      <div className="mt-4 text-xs text-slate-500 font-mono text-center">
-        energy {state.energy.toFixed(2)} · speed {state.speed.toFixed(2)} · 
-        stability {state.stability.toFixed(2)} · 
-        vitality {state.vitality.toFixed(2)} · wealth {state.wealth.toFixed(2)}
+      <div className="mt-4 text-xs text-slate-500 font-mono text-center space-y-1">
+        <div>
+          energy {state.energy.toFixed(2)} · speed {state.speed.toFixed(2)} ·
+          stability {state.stability.toFixed(2)}
+        </div>
+        <div>
+          wealth {state.wealth.toFixed(2)} · vitality {state.vitality.toFixed(2)} ·
+          focus {state.focus.toFixed(2)}
+        </div>
+        <div>
+          momentum {state.momentum.toFixed(2)} · discipline {state.discipline.toFixed(2)}
+          {state.debt ? " · DEBT" : ""}
+        </div>
       </div>
 
-      {/* Controls */}
       <div className="w-full max-w-md mt-6 space-y-4">
-        {/* Streak + Debt */}
         <div className="flex items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-slate-400">Streak</span>
@@ -81,7 +86,6 @@ export default function Home() {
           </label>
         </div>
 
-        {/* Attribute bars + level buttons */}
         {attributes.map((attr) => (
           <div key={attr.name} className="space-y-1">
             <AttributeBar attribute={attr} />
