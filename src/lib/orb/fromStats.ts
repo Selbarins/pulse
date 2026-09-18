@@ -15,15 +15,18 @@ export function orbStateFromStats(
   const avgLevel =
     attributes.reduce((s, a) => s + a.level, 0) / Math.max(attributes.length, 1);
 
-  const energy = Math.min(1, 0.25 + avgLevel * 0.08 + Math.min(streakDays, 30) * 0.012);
-  const speed = 0.7 + Math.min(streakDays, 21) * 0.04 + (byName.momentum?.level ?? 0) * 0.03;
-  const stability = inDebt ? 0.35 : Math.min(1, 0.5 + (byName.discipline?.level ?? 0) * 0.06 + streakDays * 0.01);
+  const energy = Math.min(1, 0.2 + avgLevel * 0.09 + Math.min(streakDays, 30) * 0.015);
+  const speed = 0.55 + Math.min(streakDays, 25) * 0.05 + (byName.momentum?.level ?? 0) * 0.04;
+  const stability = inDebt
+    ? 0.25
+    : Math.min(1, 0.4 + (byName.discipline?.level ?? 0) * 0.07 + streakDays * 0.012);
 
   return {
-    energy: inDebt ? energy * 0.6 : energy,
-    speed: Math.max(0.4, Math.min(2.2, speed)),
+    energy: inDebt ? energy * 0.55 : energy,
+    speed: Math.max(0.35, Math.min(2.8, speed)),
     stability,
-    vitality: Math.min(1, (byName.vitality?.level ?? 0) * 0.12),
-    wealth: Math.min(1, (byName.wealth?.level ?? 0) * 0.12),
+    vitality: Math.min(1, (byName.vitality?.level ?? 0) * 0.14),
+    wealth: Math.min(1, (byName.wealth?.level ?? 0) * 0.14),
+    debt: inDebt,
   };
 }
