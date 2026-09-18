@@ -258,7 +258,7 @@ const CORE_VERT = /* glsl */ `
         isDiscipline * RED;
 
     // mix ivory → attribute color by group level (always a mix, never pure red takeover)
-    vec3 col = mix(aColor, attrCol, clamp(groupLevel * 2.5, 0.0, 1.0));
+    vec3 col = mix(attrCol, aColor, 0.15); // always attribute color, just slightly warmed;
 
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
     float bright = 0.35 + uEnergy * 0.35;
