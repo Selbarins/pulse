@@ -258,10 +258,10 @@ const CORE_VERT = /* glsl */ `
         isDiscipline * RED;
 
     // mix ivory → attribute color by group level (always a mix, never pure red takeover)
-    vec3 col = mix(aColor, attrCol, clamp(groupLevel * 1.15, 0.0, 1.0));
+    vec3 col = mix(aColor, attrCol, clamp(groupLevel * 2.5, 0.0, 1.0));
 
     float size = uSize * (0.62 + aRand.y * 0.95) * (0.72 + uEnergy * 0.55);
-    float bright = 0.65 + uEnergy * 0.55;
+    float bright = 0.35 + uEnergy * 0.35;
 
     // heartbeat (energy-driven)
     float heart = 0.5 + 0.5 * sin(uTime * (0.9 + uEnergy * 2.4));
@@ -373,9 +373,9 @@ function buildCore() {
   const colors = new Float32Array(CORE_COUNT * 3);
   const rand = new Float32Array(CORE_COUNT * 4);
 
-  const cCore = hexToRgb("#F5E6C8");
-  const cMid = hexToRgb("#E8D5A3");
-  const cEdge = hexToRgb("#C9A86C");
+  const cCore = hexToRgb("#FFFFFF");
+  const cMid  = hexToRgb("#FFFFFF");
+  const cEdge = hexToRgb("#FFFFFF");
 
   for (let i = 0; i < CORE_COUNT; i++) {
     const t = i / CORE_COUNT;
