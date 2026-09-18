@@ -268,50 +268,64 @@ const CORE_VERT = /* glsl */ `
     float heart = 0.5 + 0.5 * sin(uTime * (0.9 + uEnergy * 2.4));
     bright *= 0.88 + heart * 0.28 * uEnergy;
 
-        // ---- per-attribute motion (blended by groupLevel) -----------------------
-    float motion = groupLevel;
+            // ---- per-attribute motion (now affects all particles by level) ----------
+    float motion = groupLevel; // still used for color intensity of this particle's slot
 
-    // Wealth → warm filaments (limited outward stretch)
-    if (isWealth > 0.5) {
-      float filament = 0.5 + 0.5 * sin(uTime * (0.85 + aRand.y * 1.6) + aRand.z * 18.0);
-      float stretch  = 1.0 + filament * 0.11 * motion;          // max ~11% leave
-      pos *= stretch;
-      bright += filament * 0.9 * motion;
-      size  *= 1.0 + (0.35 + filament * 0.7) * motion;
-    }
-    // Vitality → organic breath / soft radial pulse
-    else if (isVitality > 0.5) {
-      float breath = 0.5 + 0.5 * sin(uTime * (1.35 + uEnergy * 0.6) + aRand.z * 2.2 - pos.y * 2.8);
-      pos += dir * breath * 0.048 * motion;                     // gentle radial push
-      bright += breath * 0.95 * motion;
-      size  *= 1.0 + (0.4 + breath * 0.85) * motion;
-    }
-    // Focus → soft geometric order (pull toward cleaner bands)
-    else if (isFocus > 0.5) {
-      // gentle attraction toward sphere surface + slight latitude banding
-      pos = mix(pos, dir * r, 0.14 * motion);
-      float band = 0.5 + 0.5 * sin(uTime * 0.9 + pos.y * 5.5 + aRand.z);
-      bright += band * 0.55 * motion;
-      size  *= 1.0 + (0.2 + band * 0.4) * motion;
-    }
-    // Momentum → liquid flow (strong tangential streaming)
-    else if (isMomentum > 0.5) {
+    // Momentum → liquid flow (tangential) — strongest visual driver
+    {
       vec3 tang = normalize(cross(dir, vec3(0.0, 1.0, 0.0) + dir * 0.008));
-      float flow = 0.5 + 0.5 * sin(uTime * (1.9 + uMomentum * 1.4) + aRand.z * 6.0 + pos.y * 1.8);
-      pos += tang * flow * 0.085 * motion;                      // stronger liquid current
-      bright += flow * 0.9 * motion;
-      size  *= 1.0 + (0.3 + flow * 0.75) * motion;
+      float flow = 0.5 + 0.5 * sin(uTime * (1.7 + uMomentum * 1.6) + aRand.z * 5.5 + pos.y * 1.6);
+      pos += tang * flow * 0.078 * uMomentum;
     }
-    // Discipline → soft ordered cloud (reduce noise, gentle inward lock)
-    else if (isDiscipline > 0.5) {
-      // soft lock toward original radius instead of hard crystalline crush
-      pos = mix(pos, dir * r, 0.22 * motion);
-      float calm = 0.5 + 0.5 * sin(uTime * 0.7 + aRand.z * 9.0);
-      bright += calm * 0.4 * motion;
-      size  *= 1.0 + (0.15 + calm * 0.3) * motion;
+
+    // Vitality → organic breath (radial)
+    {
+      float breath = 0.5 + 0.5 * sin(uTime * (1.25 + uEnergy * 0.5) + aRand.z * 2.0 - pos.y * 2.6);
+      pos += dir * breath * 0.042 * uVitality;
     }
-    // ---- global tightness: Discipline tightens, low stability / debt loosens
-    float tight = 1.0 - uDiscipline * 0.14 + fl * 0.16 + uDebt * 0.1;
+
+    // Wealth → limited filaments (outward stretch)
+    {
+      float filament = 0.5 + 0.5 * sin(uTime * (0.8 + aRand.y * 1.4) + aRand.z * 16.0);
+      float stretch = 1.0 + filament * 0.09 * uWealth;
+      pos *= stretch;
+    }
+
+    // Focus → soft geometric pull toward clean surface
+    {
+      pos = mix(pos, dir * r, 0.11 * uFocus);
+    }
+
+    // Discipline → soft ordered cloud (gentle lock toward original radius)
+    {
+      pos = mix(pos, dir * r, 0.16 * uDiscipline);
+    }
+
+    // Slot-specific extra brightness / size (keeps color identity strong)
+    if (isWealth > 0.5) {
+      float sp = pow(max(0.0, sin(uTime * (1.5 + aRand.y * 3.5) + aRand.z * 40.0)), 5.0);
+      bright += sp * 1.1 * motion;
+      size  *= 1.0 + (0.3 + sp * 1.2) * motion;
+    } else if (isVitality > 0.5) {
+      float wave = 0.5 + 0.5 * sin(uTime * 1.5 - pos.y * 3.0 + aRand.z);
+      bright += wave * 0.85 * motion;
+      size  *= 1.0 + (0.35 + wave * 0.7) * motion;
+    } else if (isFocus > 0.5) {
+      float lattice = 0.5 + 0.5 * sin(uTime * 1.0 + pos.x * 3.8 + aRand.z);
+      bright += lattice * 0.5 * motion;
+      size  *= 1.0 + (0.18 + lattice * 0.35) * motion;
+    } else if (isMomentum > 0.5) {
+      float stream = 0.5 + 0.5 * sin(uTime * 2.0 + aRand.z * 7.0);
+      bright += stream * 0.75 * motion;
+      size  *= 1.0 + (0.25 + stream * 0.6) * motion;
+    } else if (isDiscipline > 0.5) {
+      float calm = 0.5 + 0.5 * sin(uTime * 0.65 + aRand.z * 8.0);
+      bright += calm * 0.35 * motion;
+      size  *= 1.0 + (0.12 + calm * 0.25) * motion;
+    }
+
+    // ---- global tightness (softer ordered cloud) ---------------------------
+    float tight = 1.0 - uDiscipline * 0.08 + fl * 0.17 + uDebt * 0.11;
     pos *= tight;
 
     // ---- Debt: cold dark + muted red edge, sagging -------------------------
