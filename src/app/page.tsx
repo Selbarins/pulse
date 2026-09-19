@@ -59,8 +59,8 @@ export default function Home() {
       </div>
 
       {/* Attribute Orbs — gentle arc, vitality at center */}
-      <div className="w-full max-w-md mt-10 px-2">
-        <div className="flex justify-between items-start">
+      <div className="w-full mt-10">
+        <div className="flex justify-center items-start gap-6">
           {ARC_ITEMS.map(({ name, label, href, translateY }) => (
             <Link
               key={name}
