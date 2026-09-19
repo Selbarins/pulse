@@ -222,7 +222,7 @@ export default function Home() {
               className="flex flex-col items-center"
               style={{ transform: `translateY(${ty}px)` }}
             >
-              <div style={{ width: 56, height: 88 }}>
+              <div style={{ width: 72, height: 72 }}>
                 <AttributeOrb attribute={name} level01={level01(name)} size="sm" />
               </div>
               <span className="text-[11px] text-slate-400 mt-1">{label}</span>
