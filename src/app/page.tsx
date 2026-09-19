@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import SoulOrb from "@/components/orb/SoulOrb";
-import { AttributeBar } from "@/components/dashboard/AttributeBar";
+import AttributeOrb from "@/components/orb/AttributeOrb";
 import { orbStateFromStats } from "@/lib/orb/fromStats";
 import type { Attribute } from "@/types/attributes";
+import { useState } from "react";
 
 const INITIAL: Attribute[] = [
   { name: "wealth", level: 3, currentXp: 420, xpToNext: 1000, multiplier: 1.1 },
@@ -14,96 +15,40 @@ const INITIAL: Attribute[] = [
   { name: "discipline", level: 4, currentXp: 50, xpToNext: 1200, multiplier: 1.25 },
 ];
 
+const ATTR_META = [
+  { name: "wealth", label: "Wealth", href: "/wealth" },
+  { name: "vitality", label: "Vitality", href: "/vitality" },
+  { name: "focus", label: "Focus", href: "/focus" },
+  { name: "momentum", label: "Momentum", href: "/momentum" },
+  { name: "discipline", label: "Discipline", href: "/discipline" },
+] as const;
+
 export default function Home() {
-  const [attributes, setAttributes] = useState<Attribute[]>(INITIAL);
-  const [streak, setStreak] = useState(9);
-  const [inDebt, setInDebt] = useState(false);
+  const [attributes] = useState<Attribute[]>(INITIAL);
+  const [streak] = useState(9);
+  const [inDebt] = useState(false);
 
   const state = orbStateFromStats(attributes, streak, inDebt);
 
-  const bump = (name: Attribute["name"], delta: number) => {
-    setAttributes((prev) =>
-      prev.map((a) =>
-        a.name === name
-          ? { ...a, level: Math.max(1, Math.min(20, a.level + delta)) }
-          : a
-      )
-    );
+  const level01 = (name: string) => {
+    const attr = attributes.find((a) => a.name === name);
+    return attr ? Math.min(1, Math.max(0, (attr.level - 1) / 19)) : 0;
   };
 
   return (
-    <main className="min-h-screen bg-[#0B0D10] flex flex-col items-center p-4 pb-20">
-      <h1 className="text-2xl font-semibold text-slate-100 mb-4 tracking-wide">
-        Pulse — Orb Lab
-      </h1>
-
+    <main className="min-h-screen bg-[#0B0D10] flex flex-col items-center px-4 pt-8 pb-16">
+      {/* Big Soul Orb */}
       <div className="w-full max-w-md">
-        <SoulOrb state={state} showMood />
+        <SoulOrb state={state} />
       </div>
 
-      <div className="mt-4 text-xs text-slate-500 font-mono text-center space-y-1">
-        <div>
-          energy {state.energy.toFixed(2)} · speed {state.speed.toFixed(2)} ·
-          stability {state.stability.toFixed(2)}
-        </div>
-        <div>
-          wealth {state.wealth.toFixed(2)} · vitality {state.vitality.toFixed(2)} ·
-          focus {state.focus.toFixed(2)}
-        </div>
-        <div>
-          momentum {state.momentum.toFixed(2)} · discipline {state.discipline.toFixed(2)}
-          {state.debt ? " · DEBT" : ""}
-        </div>
-      </div>
-
-      <div className="w-full max-w-md mt-6 space-y-4">
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">Streak</span>
-            <button
-              onClick={() => setStreak((s) => Math.max(0, s - 1))}
-              className="px-2 py-1 rounded bg-slate-800 text-slate-200"
-            >
-              –
-            </button>
-            <span className="w-8 text-center text-amber-400 font-medium">{streak}</span>
-            <button
-              onClick={() => setStreak((s) => s + 1)}
-              className="px-2 py-1 rounded bg-slate-800 text-slate-200"
-            >
-              +
-            </button>
-          </div>
-
-          <label className="flex items-center gap-2 text-slate-400 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={inDebt}
-              onChange={(e) => setInDebt(e.target.checked)}
-              className="accent-amber-500"
-            />
-            Debt
-          </label>
-        </div>
-
-        {attributes.map((attr) => (
-          <div key={attr.name} className="space-y-1">
-            <AttributeBar attribute={attr} />
-            <div className="flex gap-2">
-              <button
-                onClick={() => bump(attr.name, -1)}
-                className="flex-1 py-1 text-xs rounded bg-slate-800 text-slate-300 hover:bg-slate-700"
-              >
-                – Level
-              </button>
-              <button
-                onClick={() => bump(attr.name, 1)}
-                className="flex-1 py-1 text-xs rounded bg-slate-800 text-slate-300 hover:bg-slate-700"
-              >
-                + Level
-              </button>
-            </div>
-          </div>
+      {/* 5 Attribute Orbs – clean row */}
+      <div className="w-full max-w-md mt-8 grid grid-cols-5 gap-2">
+        {ATTR_META.map((a) => (
+          <Link key={a.name} href={a.href} className="flex flex-col items-center gap-1">
+            <AttributeOrb attribute={a.name} level01={level01(a.name)} size="sm" />
+            <span className="text-[11px] text-slate-400 tracking-wide">{a.label}</span>
+          </Link>
         ))}
       </div>
     </main>
