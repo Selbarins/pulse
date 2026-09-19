@@ -28,7 +28,20 @@ export default function Home() {
   const [streak] = useState(9);
   const [inDebt] = useState(false);
 
-  const state = orbStateFromStats(attributes, streak, inDebt);
+  const realState = orbStateFromStats(attributes, streak, inDebt);
+  // temporary visual boost (remove later)
+const state = {
+  ...realState,
+  energy: 0.92,
+  speed: 1.6,
+  stability: 0.95,
+  vitality: 0.85,
+  wealth: 0.85,
+  focus: 0.7,
+  momentum: 0.8,
+  discipline: 0.8,
+  debt: false,
+};
 
   const level01 = (name: string) => {
     const attr = attributes.find((a) => a.name === name);
@@ -36,21 +49,59 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0B0D10] flex flex-col items-center px-4 pt-8 pb-16">
-      {/* Big Soul Orb */}
-      <div className="w-full max-w-md">
-        <SoulOrb state={state} />
-      </div>
+  <main className="min-h-screen bg-[#0B0D10] flex flex-col items-center px-4 pt-8 pb-16">
+    {/* Big Soul Orb */}
+    <div className="w-full max-w-md">
+      <SoulOrb state={state} />
+    </div>
 
-      {/* 5 Attribute Orbs – clean row */}
-      <div className="w-full max-w-md mt-8 grid grid-cols-5 gap-2">
-        {ATTR_META.map((a) => (
-          <Link key={a.name} href={a.href} className="flex flex-col items-center gap-1">
-            <AttributeOrb attribute={a.name} level01={level01(a.name)} size="sm" />
-            <span className="text-[11px] text-slate-400 tracking-wide">{a.label}</span>
-          </Link>
-        ))}
-      </div>
-    </main>
-  );
+    {/* 5 Attribute Orbs – Arc layout */}
+    <div className="w-full max-w-sm mt-12 relative h-44">
+      {/* Top center - Focus */}
+      <Link
+        href="/focus"
+        className="absolute left-1/2 -translate-x-1/2 top-0 flex flex-col items-center gap-1"
+      >
+        <AttributeOrb attribute="focus" level01={level01("focus")} size="sm" />
+        <span className="text-[11px] text-slate-400 tracking-wide">Focus</span>
+      </Link>
+
+      {/* Upper left - Wealth */}
+      <Link
+        href="/wealth"
+        className="absolute left-2 top-10 flex flex-col items-center gap-1"
+      >
+        <AttributeOrb attribute="wealth" level01={level01("wealth")} size="sm" />
+        <span className="text-[11px] text-slate-400 tracking-wide">Wealth</span>
+      </Link>
+
+      {/* Upper right - Vitality */}
+      <Link
+        href="/vitality"
+        className="absolute right-2 top-10 flex flex-col items-center gap-1"
+      >
+        <AttributeOrb attribute="vitality" level01={level01("vitality")} size="sm" />
+        <span className="text-[11px] text-slate-400 tracking-wide">Vitality</span>
+      </Link>
+
+      {/* Lower left - Momentum */}
+      <Link
+        href="/momentum"
+        className="absolute left-8 bottom-0 flex flex-col items-center gap-1"
+      >
+        <AttributeOrb attribute="momentum" level01={level01("momentum")} size="sm" />
+        <span className="text-[11px] text-slate-400 tracking-wide">Momentum</span>
+      </Link>
+
+      {/* Lower right - Discipline */}
+      <Link
+        href="/discipline"
+        className="absolute right-8 bottom-0 flex flex-col items-center gap-1"
+      >
+        <AttributeOrb attribute="discipline" level01={level01("discipline")} size="sm" />
+        <span className="text-[11px] text-slate-400 tracking-wide">Discipline</span>
+      </Link>
+    </div>
+  </main>
+);
 }
