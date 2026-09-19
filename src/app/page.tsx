@@ -60,7 +60,7 @@ export default function Home() {
 
       {/* Attribute Orbs — gentle arc, vitality at center */}
       <div className="w-full mt-10">
-        <div className="flex justify-center items-start gap-6">
+        <div className="flex justify-center items-start gap-3">
           {ARC_ITEMS.map(({ name, label, href, translateY }) => (
             <Link
               key={name}
@@ -68,7 +68,9 @@ export default function Home() {
               className="flex flex-col items-center"
               style={{ transform: `translateY(${translateY}px)` }}
             >
-              <AttributeOrb attribute={name} level01={level01(name)} size="sm" />
+              <div style={{ width: 56, height: 88 }}>
+                <AttributeOrb attribute={name} level01={level01(name)} size="sm" />
+              </div>
               <span className="text-[11px] text-slate-400 mt-1">{label}</span>
             </Link>
           ))}
